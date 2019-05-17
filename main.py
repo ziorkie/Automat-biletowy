@@ -1,14 +1,16 @@
 from tkinter import *
-root = Tk()
+from Window import *
 
-label1= Label(root, text="Name")
-label2= Label(root, text="Password")
-entry1 = Entry(root)
-entry2 = Entry(root)
 
-label1.grid(row=0, column=0)
-entry1.grid(row=0,column=1)
-label2.grid(row=1, column=0)
-entry2.grid(row=1,column=1)
-label3= Label(root, text="Name")
-root.mainloop()
+def main():
+    try:
+        root = Tk()
+        app = Application(master=root)
+        root.resizable(width=False, height=False)
+        app.mainloop()
+
+    except:
+        #popupmsg("Błąd\ntworzenia \nw main")
+        pass
+if __name__=="__main__":
+    main()

@@ -6,7 +6,7 @@ def main():
     try:
         root = Tk()
         app = Application(master=root)
-        root.resizable(width=False, height=False)
+        root.resizable(0,0)
         app.mainloop()
 
     except:

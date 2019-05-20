@@ -7,6 +7,8 @@ class negativeValueError(Exception):
     pass
 class tooLittleCash(Exception):
     pass
+class noTicket(Exception):
+    pass
 
 class Application(Frame, Tickets, Coin):
     def __init__(self, master=None):
@@ -51,6 +53,8 @@ class Application(Frame, Tickets, Coin):
     def new_window(self):
         walletWindow= Toplevel(self)
         walletFrameLeft=Frame(walletWindow)
+        walletWindow.resizable(0,0)
+        walletWindow.title("Portfel")
         walletFrameLeft.pack(side=LEFT, fill=Y)
         walletFrameMiddle=Frame(walletWindow)
         walletFrameMiddle.pack(side=LEFT, fill=Y)
@@ -119,12 +123,25 @@ class Application(Frame, Tickets, Coin):
                 raise negativeValueError
             if change<0:
                 raise negativeValueError
+            if self.toPay<=0:
+                raise noTicket
         except negativeValueError:
             self.write("")
             self.screen.insert(0.0,"Za mało pieniędzy!\n\n")
         except tooLittleCash:
             messagebox.showerror("Błąd!", "Wrzuć odliczoną kwotę, brak pieniędzy do wydania.")
+        except noTicket:
+            messagebox.showerror("Błąd!", "Brak dodanych biletów!")
         else:
+
+            for k, v in self.cashStash.items():
+                print(self.cashStash)
+                print(change)
+                if int(change/float(k))>=1:
+                    tempwow=int(change/float(k))
+                    self.cashStash[k]-=tempwow
+                    change-=tempwow*float(k)
+
             self.chosenTickets.clear()
             for key in self.cashTemp.keys():
                 self.cashTemp[key]=0

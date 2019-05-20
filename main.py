@@ -10,7 +10,7 @@ def main():
         app.mainloop()
 
     except:
-        #popupmsg("Błąd\ntworzenia \nw main")
+        messagebox.showerror("błąd tworzenia aplikacji!","coś poszło nie tak...")
         pass
 if __name__=="__main__":
     main()

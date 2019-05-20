@@ -133,10 +133,10 @@ class Application(Frame, Tickets, Coin):
         except noTicket:
             messagebox.showerror("Błąd!", "Brak dodanych biletów!")
         else:
-
+            finalChange=change
             for k, v in self.cashStash.items():
-                print(self.cashStash)
-                print(change)
+              #  print(self.cashStash)
+               # print(change)
                 if int(change/float(k))>=1:
                     tempwow=int(change/float(k))
                     self.cashStash[k]-=tempwow
@@ -147,8 +147,8 @@ class Application(Frame, Tickets, Coin):
                 self.cashTemp[key]=0
             self.cashtempAmount=0
             self.screen.delete(0.0, END)
-            if change>0:
-                self.screen.insert(0.0, "Zapłacono "+str(round(self.toPay, 2))+"zł"+"\nTwoja reszta to: "+str(round(change, 2))+"zł\n")
+            if finalChange>0:
+                self.screen.insert(0.0, "Zapłacono "+str(round(self.toPay, 2))+"zł"+"\nTwoja reszta to: "+str(round(finalChange, 2))+"zł\n")
             self.toPay = 0
             self.buyTickets()
             self.viewcashtempAmount.set("Wrzucono:"+str(round(self.cashtempAmount,2))+" zł")
@@ -176,7 +176,7 @@ class Application(Frame, Tickets, Coin):
                 self.screen.insert(0.0, "Zapłacono kartą \nZwrócono "+str(self.cashtempAmount)+"\n")
             self.cashtempAmount = 0
             self.viewcashtempAmount.set("Wrzucono:"+str(round(self.cashtempAmount,2))+" zł")
-
+            self.viewToPay.set("Do zapłaty:" + str(round(self.toPay, 2)) + " zł")
 
 
 

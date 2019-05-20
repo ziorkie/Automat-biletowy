@@ -1,7 +1,11 @@
 from tkinter import *
 from ticket import *
 from coin import *
+from tkinter import messagebox
+
 class negativeValueError(Exception):
+    pass
+class tooLittleCash(Exception):
     pass
 
 class Application(Frame, Tickets, Coin):
@@ -17,7 +21,6 @@ class Application(Frame, Tickets, Coin):
         self.createWidgets()
         self.center()
         self.write("")
-
 
 
     def inicializephoto(self):
@@ -91,8 +94,9 @@ class Application(Frame, Tickets, Coin):
         quantity=Spinbox(walletFrameRight, from_=1, to=100)
         quantity.pack(anchor=W)
 
-    def addTicket(self, key):
-        self.viewedText += str(self.addTickets(key))
+
+    def addTicket(self, key, amount):
+        self.viewedText += str(self.addTickets(key, amount))
         self.write("")
 
     def undoTickets(self):
@@ -104,25 +108,35 @@ class Application(Frame, Tickets, Coin):
         self.screen.insert(0.0, self.byeText)
 
     def calculateChange(self):
+        totalAmount=0
         try:
             change=self.cashtempAmount-self.toPay
+            for k, v in self.cashStash.items():
+                totalAmount+=(float(k)*v)
+            if change>(totalAmount-self.cashtempAmount):
+                raise tooLittleCash
             if change<=0 and self.toPay==0:
                 raise negativeValueError
             if change<0:
                 raise negativeValueError
         except negativeValueError:
             self.write("")
-            self.screen.insert(0.0,"Za mało pieniędzy!\n")
+            self.screen.insert(0.0,"Za mało pieniędzy!\n\n")
+        except tooLittleCash:
+            messagebox.showerror("Błąd!", "Wrzuć odliczoną kwotę, brak pieniędzy do wydania.")
         else:
             self.chosenTickets.clear()
             for key in self.cashTemp.keys():
                 self.cashTemp[key]=0
             self.cashtempAmount=0
-            self.toPay=0
             self.screen.delete(0.0, END)
-            self.screen.insert(0.0, "Twoja reszta to:"+str(change)+"\n")
+            if change>0:
+                self.screen.insert(0.0, "Zapłacono "+str(round(self.toPay, 2))+"zł"+"\nTwoja reszta to: "+str(round(change, 2))+"zł\n")
+            self.toPay = 0
             self.buyTickets()
             self.viewcashtempAmount.set("Wrzucono:"+str(round(self.cashtempAmount,2))+" zł")
+            self.viewToPay.set("Do zapłaty:" + str(round(self.toPay, 2)) + " zł")
+
     def calculateChangeCard(self):
         try:
             change=self.cashtempAmount-self.toPay
@@ -136,12 +150,16 @@ class Application(Frame, Tickets, Coin):
             self.chosenTickets.clear()
             for key in self.cashTemp.keys():
                 self.cashTemp[key]=0
-            self.cashtempAmount=0
+
             self.toPay=0
             self.screen.delete(0.0, END)
             self.screen.insert(0.0, "\n")
             self.buyTickets()
+            if self.cashtempAmount>0:
+                self.screen.insert(0.0, "Zapłacono kartą \nZwrócono "+str(self.cashtempAmount)+"\n")
+            self.cashtempAmount = 0
             self.viewcashtempAmount.set("Wrzucono:"+str(round(self.cashtempAmount,2))+" zł")
+
 
 
 
@@ -149,7 +167,7 @@ class Application(Frame, Tickets, Coin):
         self.viewedText=text
         self.toPay = round(self.toPay, 2)
         self.screen.delete(0.0, END)
-        self.screen.insert(0.0,self.viewedText +"Wybrano bilety:"+str(self.chosenTickets)+ "\nDo Zapłaty: " + str(self.toPay) + " zl")
+        self.screen.insert(0.0,self.viewedText +"Wybrano bilety:"+str(self.chosenTickets)+ "\n")
 
     def createWidgets(self):
         leftFrame = Frame(self)
@@ -165,29 +183,32 @@ class Application(Frame, Tickets, Coin):
 
         self.master.title("Automat biletowy MPK")
         b_ticket1 = Button(leftFrame, text="Bilet normalny 20 min\n2,80zł", height=4, width=20, bg="gray65",
-                           overrelief=GROOVE, command=lambda: self.addTicket(2.80))
+                           overrelief=GROOVE, command=lambda: self.addTicket(2.80, ticketQuantity.get()))
         b_ticket1.pack(anchor=N)
         b_ticket2 = Button(middleFrame, text="Bilet ulgowy 20 min\n1,40zł", height=4, width=20, bg="gray65",
-                           overrelief=GROOVE, command=lambda: self.addTicket(1.40))
+                           overrelief=GROOVE, command=lambda: self.addTicket(1.40, ticketQuantity.get()))
         b_ticket2.pack(anchor=N)
         b_ticket3 = Button(leftFrame, text="Bilet normalny 40 min\n3,80zł", height=4, width=20, bg="gray75",
-                           overrelief=GROOVE, command=lambda: self.addTicket(3.80))
+                           overrelief=GROOVE, command=lambda: self.addTicket(3.80, ticketQuantity.get()))
         b_ticket3.pack(anchor=N)
         b_ticket4 = Button(middleFrame, text="Bilet ulgowy 40 min\n1,90zł", height=4, width=20, bg="gray75",
-                           overrelief=GROOVE, command=lambda: self.addTicket(1.90))
+                           overrelief=GROOVE, command=lambda: self.addTicket(1.90, ticketQuantity.get()))
         b_ticket4.pack(anchor=N)
         b_ticket5 = Button(leftFrame, text="Bilet normalny 60 min\n6,00zł", height=4, width=20, bg="gray85",
-                           overrelief=GROOVE, command=lambda: self.addTicket(6.00))
+                           overrelief=GROOVE, command=lambda: self.addTicket(6.00, ticketQuantity.get()))
         b_ticket5.pack(anchor=N)
         b_ticket6 = Button(middleFrame, text="Bilet ulgowy 60 min\n3,00zł", height=4, width=20, bg="gray85",
-                           overrelief=GROOVE, command=lambda: self.addTicket(3.00))
+                           overrelief=GROOVE, command=lambda: self.addTicket(3.00, ticketQuantity.get()))
         b_ticket6.pack(anchor=N)
+        l_ticketQuantity=Label(leftFrame, text="Ilość biletów:")
+        l_ticketQuantity.pack(anchor=E)
+        ticketQuantity = Spinbox(middleFrame, from_=1, to=100)
+        ticketQuantity.pack(anchor=W)
 
         self.screen = Text(rightFrame, width=25, height=10, wrap=WORD)
         self.screen.pack(fill=Y, anchor=N)
 
-        l_viewAmount=Label(rightFrame, textvariable=self.viewcashtempAmount)
-        l_viewAmount.pack()
+
 
         b_returnMoney=Button(rightFrame, text="ZWRÓĆ PIENIĄDZE", height=2, width=20, bg="mint cream", overrelief=GROOVE,
                              command=lambda: self.returnMoney())
@@ -202,8 +223,9 @@ class Application(Frame, Tickets, Coin):
         b_wallet= Button(moneyFrame1, image=self.photoW, overrelief=GROOVE, command=self.new_window)
         b_wallet.pack()
 
-
-
-
-
-
+        l_viewAmount = Label(moneyFrame1, textvariable=self.viewcashtempAmount)
+        l_viewAmount.config(font=("Courier", 13))
+        l_viewAmount.pack()
+        l_toPay = Label(moneyFrame1, textvariable=self.viewToPay)
+        l_toPay.config(font=("Courier", 13))
+        l_toPay.pack()

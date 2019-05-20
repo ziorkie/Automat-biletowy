@@ -12,6 +12,7 @@ class Coin:
         self.viewcashtempAmount=StringVar()
         self.viewcashtempAmount.set("Wrzucono:"+str(round(self.cashtempAmount,2))+" zł")
 
+
     def throwMoney(self, key, amount):
         try:
             tmp=int(amount)
